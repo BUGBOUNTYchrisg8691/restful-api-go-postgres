@@ -1,0 +1,7 @@
+{
+    "name": "venue1",
+    "description": "this is a test venue",
+    "location": "Tampa, Fl",
+    "category": "music",
+    "capacity": 1000
+}
