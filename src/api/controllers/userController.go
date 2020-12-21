@@ -109,3 +109,13 @@ func (app *App) Login(writer http.ResponseWriter, req *http.Request) {
 	responses.JSON(writer, http.StatusOK, resp)
 	return
 }
+
+func (app *App) GetUsers(writer http.ResponseWriter, req *http.Request) {
+	users, err := models.GetUsers(app.DB)
+	if err != nil {
+		responses.ERROR(writer, http.StatusBadRequest, err)
+		return
+	}
+	responses.JSON(writer, http.StatusOK, users)
+	return
+}

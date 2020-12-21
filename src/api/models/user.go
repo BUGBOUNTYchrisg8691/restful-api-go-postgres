@@ -108,8 +108,8 @@ func (user *User) GetUser(db *gorm.DB) (*User, error) {
 	return account, nil
 }
 
-// GetAllUsers returns a list of all the users
-func GetAllUsers(db *gorm.DB) (*[]User, error) {
+// GetUsers returns a list of all the users
+func GetUsers(db *gorm.DB) (*[]User, error) {
 	users := []User{}
 	if err := db.Debug().Table("users").Find(&users).Error; err != nil {
 		return &[]User{}, err

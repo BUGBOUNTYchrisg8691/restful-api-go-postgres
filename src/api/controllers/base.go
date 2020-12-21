@@ -29,15 +29,22 @@ func (app *App) Initialize(DBHost, DBPort, DBUser, DBName, DBPassword string) {
 	DBURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s", DBHost, DBPort, DBUser, DBName, DBPassword)
 
 	app.DB, err = gorm.Open("postgres", DBURI)
-
 	if err != nil {
-		fmt.Printf("\n Cannot connect to database %s", DBName)
+		fmt.Sprintf("\nCannot connect to database %s", DBName)
 		log.Fatal("This is the error: ", err)
 	} else {
 		fmt.Printf("We are connected to the database %s", DBName)
 	}
 
-	app.DB.Debug().AutoMigrate(&models.User{})	// database migration
+	//if err != nil {
+	//	fmt.Printf("\n Cannot connect to database %s", DBName)
+	//	log.Fatal("This is the error: ", err)
+	//} else {
+	//	fmt.Printf("We are connected to the database %s", DBName)
+	//}
+
+	// database migration
+	app.DB.Debug().AutoMigrate(&models.User{}, &models.Venue{})
 
 	app.Router = mux.NewRouter().StrictSlash(true)
 	app.initializeRoutes()
@@ -49,6 +56,15 @@ func (app *App) initializeRoutes() {
 	app.Router.HandleFunc("/", home).Methods("GET")
 	app.Router.HandleFunc("/register", app.UserSignUp).Methods("POST")
 	app.Router.HandleFunc("/login", app.Login).Methods("POST")
+
+	subrouter := app.Router.PathPrefix("/api").Subrouter()  // routes that require auth
+	subrouter.Use(middlewares.AuthJwtVerify)
+
+	subrouter.HandleFunc("/users", app.GetUsers).Methods("GET")
+	subrouter.HandleFunc("/venues", app.CreateVenue).Methods("POST")
+	subrouter.HandleFunc("/venues", app.GetVenues).Methods("GET")
+	subrouter.HandleFunc("/venues/{id:[0-9]+}", app.UpdateVenue).Methods("PUT")
+	subrouter.HandleFunc("/venues/{id:[0-9]+}", app.DeleteVenue).Methods("DELETE")
 }
 
 func (app *App) RunServer() {
